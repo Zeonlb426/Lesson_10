@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto Mono';
+    list-style-type: none;
+}
+
+@font-face {
+    font-family: "Technology";
+    src: url('./fonts/Technology.ttf') format('truetype');
+}
+
+.content {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    background-color: #f1f0f3;
+}
+
+.calculator {
+    width: 540px;
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 16px;
+    background: #dcdee4;
+    box-shadow: 9px 9px 24px #787878;
+}
+
+.head {
+    width: 100%;
+    background: #000000;
+    padding: 15px 25px 40px 25px;
+    border-radius: 16px 16px 0 0;
+    
+}
+
+.brend {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    color: #dcdedb;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.model {
+    font-size: 18px;
+}
+
+.frame {
+    background: #eff7fa;
+    padding: 15px 40px 30px 40px;
+    border-radius: 8px;
+}
+
+#display {
+    position: relative;
+    background-color: #c7d5cf;
+    border: 2px solid #343935;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5px;
+    color: #070a09;
+}
+
+#symbols {
+    font-family: 'Technology';
+    font-size: 80px;
+    line-height: 64px;
+}
+
+#memory-symbol {
+    font-size: 28px;
+    margin-top: -34px;
+    opacity: 0;
+}
+
+.body {
+    width: 100%;
+    background: #cacad1;
+    border-radius: 0 0 16px 16px;
+    padding: 25px 25px 40px 25px;
+}
+
+#button-panel {
+    display: grid;
+    gap: 15px;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: 35px repeat(4, 60px);
+}
+
+.button {
+    color: #fff;
+    background-color: #706d74;
+    border: 1px solid #525054;
+    border-radius: 6px;
+    font-size: 28px;
+    line-height: 28px;
+}
+
+.button:nth-child(5) {
+    background-color: #b15a61;
+    border: 1px solid #894952;
+}
+
+.big {
+    font-size: 42px;
+    line-height: 42px;
+}
+
+.digit {
+    background-color: #444248;
+    border: 1px solid #282829;
+}
+
+.button:nth-child(19) {
+    grid-column: 4 / 5;
+    grid-row: 4 / 6;
+}
+
+.button:hover {
+    filter: brightness(1.1);
+}
+
+.button.pressed {
+    border-bottom: 1px solid #fff;
+    border-right: 1px solid #fff;
+    border-top: 1px solid #000000;
+    border-left: 1px solid #000000;
+    box-shadow: inset 0 0 15px #00000079;
+}
