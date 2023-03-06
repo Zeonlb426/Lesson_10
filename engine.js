@@ -7,6 +7,8 @@ window.addEventListener('load', function(){
 
     let currentState = '0';
     let bufferState = '0';
+    let operation = null;
+    let clearFlag = false;
     let memoryBuffer = 0;
 
     
@@ -42,24 +44,59 @@ window.addEventListener('load', function(){
             case "2":
             case "1":
             case "0":
+                CheckState();
                 currentState = Concatenation(currentState, e.target.dataset.button);
                 DisplayShow(currentState);
                 break;
+
             case "dot":
+                CheckState();
                 currentState = Concatenation(currentState, '.');
                 DisplayShow(currentState);
                 break;
+
             case "ce":
                 DisplayClear();
-                currentState = 0
+                currentState = '0';
                 break;
+
             case "plus_minus":
-                currentState = currentState * -1;
+                currentState = (currentState * -1).toString();
                 DisplayShow(currentState);
+                break;
+
+            case "mult":
+            case "divide":
+            case "plus":
+            case "minus":
+                if (clearFlag) {
+                    operation = e.target.dataset.button;
+                } else {
+                    currentState = Сalculate();
+                    bufferState = currentState;
+                    operation = e.target.dataset.button;
+                    clearFlag = true;
+                    DisplayShow(currentState);
+                }
+                break;
+
+            case "equals":
+                currentState = Сalculate();
+                bufferState = currentState;
+                operation = null;
+                clearFlag = true;
+                DisplayShow(currentState);
+                break;
+
+            case "on_off":
+                operation = null;
+                bufferState = '0';
+                currentState = '0';
+                DisplayShow(currentState);
+                break;
         }
 
-        console.log(e.target.dataset.button);
-
+console.log(e.target.dataset.button);
     })
 
     /* 
@@ -74,27 +111,61 @@ window.addEventListener('load', function(){
     *  Функция очистки экрана. Устанавливает "0" в качестве отображения по умолчанию. 
     */
     function DisplayClear() {
-        display.innerText = 0;
+        display.innerText = '0';
     }
 
     /* 
-    *  Функция добавления набираемых цифр. Принимает два параметра, первое - текущее значение числа, второе - введенная цифра. (7 + 8 -> 78)
+    *  Функция добавления набираемых цифр. Принимает два параметра, первое - текущее значение числа отображаемое на дисплее, второе - введенная цифра. (7 + 8 -> 78)
     *  Для того чтобы это было именно обединение, а не арифметическая операция сложения, оба аргумента приводятся к типу "строка".
     */
-    function Concatenation(number, currentState) {
-        if (number.toString().length >= 10) return number;
-        return Number(number.toString() + currentState.toString());
+    function Concatenation(currentState, buttonValue) {
+
+        currentState = currentState.toString();
+        buttonValue = buttonValue.toString();
+
+        if (currentState.length >= 10) return currentState;
+        if (buttonValue === '.') return currentState.includes('.') ? currentState : currentState + buttonValue;
+
+        return currentState.includes('.') ? currentState + buttonValue : Number(currentState + buttonValue).toString();
     }
 
     /* 
     *  Функция отображения значения на экран. Ожидает на вход значение, необходимое для отображения. 
     */
-    function DisplayShow(number) {
-        display.innerText = Number(number);
+    function DisplayShow(currentState) {
+        display.innerText = currentState;
+    }
+
+    function Сalculate() {
+        if (operation === null) return currentState;
+        let result = 0
+        switch(operation) {
+            case "mult":
+                result = Number(bufferState) * Number(currentState);
+                break;
+            case "divide":
+                result = Number(bufferState) / Number(currentState);
+                break;
+            case "plus":
+                result = Number(bufferState) + Number(currentState);
+                break;
+            case "minus":
+                result = Number(bufferState) - Number(currentState);
+                break;
+        }
+        operation = null
+        return result.toString()
+    }
+
+    function CheckState() {
+        if (clearFlag) {
+            clearFlag = false;
+            DisplayClear();
+            currentState = '0';
+        }
     }
 
 });
-
 
 
 
