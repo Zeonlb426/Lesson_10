@@ -3,15 +3,14 @@ window.addEventListener('load', function(){
     const calculator = document.getElementById('calculator');
     const buttonPanel = document.getElementById('button-panel');
     const display = document.getElementById('symbols');
-    const memorySymbol = document.getElementById('memory-symbol');
+    // const memorySymbol = document.getElementById('memory-symbol');
 
-    let currentState = '0';
-    let bufferState = '0';
-    let operation = null;
-    let clearFlag = false;
-    let memoryBuffer = 0;
+    let currentValue = '0';
+    let bufferValue = '0';
+    let operationStack = null;
+    let lastPressedButton = null;
+    // let memoryBuffer = 0;
 
-    
     calculator.addEventListener('mousemove', function(event) {
         if(event.buttons == 1) {
          event.preventDefault();
@@ -44,59 +43,52 @@ window.addEventListener('load', function(){
             case "2":
             case "1":
             case "0":
-                CheckState();
-                currentState = Concatenation(currentState, e.target.dataset.button);
-                DisplayShow(currentState);
-                break;
-
             case "dot":
-                CheckState();
-                currentState = Concatenation(currentState, '.');
-                DisplayShow(currentState);
+                if (lastPressedButton === 'operation') {
+                    currentValue = '0'
+                }
+                currentValue = Concatenation(currentValue, e.target.dataset.button);
+                DisplayShow(currentValue);
                 break;
 
             case "ce":
-                DisplayClear();
-                currentState = '0';
+                currentValue = '0';
+                DisplayShow(currentValue);
                 break;
 
             case "plus_minus":
-                currentState = (currentState * -1).toString();
-                DisplayShow(currentState);
+                currentValue = (currentValue * -1).toString();
+                DisplayShow(currentValue);
                 break;
 
             case "mult":
             case "divide":
             case "plus":
             case "minus":
-                if (clearFlag) {
-                    operation = e.target.dataset.button;
-                } else {
-                    currentState = Сalculate();
-                    bufferState = currentState;
-                    operation = e.target.dataset.button;
-                    clearFlag = true;
-                    DisplayShow(currentState);
-                }
+            case "equals":
+                currentValue = Сalculate();
+                bufferValue = currentValue;
+                operationStack = e.target.dataset.button;
+                DisplayShow(currentValue);
                 break;
 
-            case "equals":
-                currentState = Сalculate();
-                bufferState = currentState;
-                operation = null;
-                clearFlag = true;
-                DisplayShow(currentState);
+            case "sqrt":
+                currentValue = Math.sqrt(currentValue);
+                if (currentValue.toString().length > 10) {
+                    currentValue % 1 !== 0 ? currentValue = currentValue.toString().slice(0, 10) : currentValue = (currentValue.toExponential(4)).toString();
+                };
+                DisplayShow(currentValue);
                 break;
 
             case "on_off":
-                operation = null;
-                bufferState = '0';
-                currentState = '0';
-                DisplayShow(currentState);
+                operationStack = null;
+                bufferValue = '0';
+                currentValue = '0';
+                DisplayShow(currentValue);
                 break;
         }
 
-console.log(e.target.dataset.button);
+        lastPressedButton = e.target.dataset.type
     })
 
     /* 
@@ -108,206 +100,53 @@ console.log(e.target.dataset.button);
     }
 
     /* 
-    *  Функция очистки экрана. Устанавливает "0" в качестве отображения по умолчанию. 
-    */
-    function DisplayClear() {
-        display.innerText = '0';
-    }
-
-    /* 
     *  Функция добавления набираемых цифр. Принимает два параметра, первое - текущее значение числа отображаемое на дисплее, второе - введенная цифра. (7 + 8 -> 78)
-    *  Для того чтобы это было именно обединение, а не арифметическая операция сложения, оба аргумента приводятся к типу "строка".
+    *  Для того чтобы это было именно объединение, а не арифметическая операция сложения, оба аргумента приводятся к типу "строка".
     */
-    function Concatenation(currentState, buttonValue) {
+    function Concatenation(currentValue, buttonValue) {
 
-        currentState = currentState.toString();
-        buttonValue = buttonValue.toString();
+        if (currentValue.length >= 10) return currentValue;
+        
+        if (buttonValue === 'dot') return currentValue.includes('.') ? currentValue : currentValue + '.';
 
-        if (currentState.length >= 10) return currentState;
-        if (buttonValue === '.') return currentState.includes('.') ? currentState : currentState + buttonValue;
-
-        return currentState.includes('.') ? currentState + buttonValue : Number(currentState + buttonValue).toString();
+        return currentValue.includes('.') ? currentValue + buttonValue : Number(currentValue + buttonValue).toString();
     }
 
     /* 
     *  Функция отображения значения на экран. Ожидает на вход значение, необходимое для отображения. 
     */
-    function DisplayShow(currentState) {
-        display.innerText = currentState;
+    function DisplayShow(currentValue) {
+        display.innerText = currentValue;
     }
 
+    /* 
+    *  Функция выполняет арифметические операции, если таковые есть в стеке операций. 
+    */
     function Сalculate() {
-        if (operation === null) return currentState;
-        let result = 0
-        switch(operation) {
+        if (operationStack === null || operationStack === 'equals') return currentValue;
+        let result = 0;
+        switch(operationStack) {
             case "mult":
-                result = Number(bufferState) * Number(currentState);
+                result = Number(bufferValue) * Number(currentValue);
                 break;
             case "divide":
-                result = Number(bufferState) / Number(currentState);
+                result = Number(bufferValue) / Number(currentValue);
                 break;
             case "plus":
-                result = Number(bufferState) + Number(currentState);
+                result = Number(bufferValue) + Number(currentValue);
                 break;
             case "minus":
-                result = Number(bufferState) - Number(currentState);
+                result = Number(bufferValue) - Number(currentValue);
                 break;
         }
-        operation = null
-        return result.toString()
-    }
 
-    function CheckState() {
-        if (clearFlag) {
-            clearFlag = false;
-            DisplayClear();
-            currentState = '0';
-        }
+        operationStack = null;
+
+        if (result.toString().length > 10) {
+            result % 1 !== 0 ? result = result.toString().slice(0, 10) : result = result.toExponential(4);
+        };
+
+        return result.toString();
     }
 
 });
-
-
-
-//     const display = document.getElementById('display');
-//     const operationButtons = document.getElementById('operation-panel');
-//     const panelDigitButtons = document.getElementById('digit-panel');
-
-//     let number = 0;
-//     let operation = '';
-//     let buffer = 0;
-
-//     panelDigitButtons.addEventListener('click', function(e){
-
-//         if ( IsButton(e) === false ) return;
-
-//         if (e.target.dataset.button === "clear") {
-//             DisplayClear();
-//             ResetAll();
-//             return;
-//         }
-
-//         if (e.target.dataset.button === "backspace") {
-//             number = Backspace(number);
-//             DisplayShow(number);
-//             return;
-//         }
-
-//         number = Concatenation(number, e.target.dataset.button);
-//         DisplayShow(number);
-//     })
-
-//     operationButtons.addEventListener('click', function(e){
-
-//         if ( IsButton(e) === false ) return;
-
-//         if (e.target.dataset.button === "=") {
-//             number = operation !== '' ? Calculate(buffer + operation + number)  : number;
-//             DisplayShow(number);
-//             return;
-//         }
-
-//         if (operation !== '') {
-//             number = Calculate(buffer + operation + number);
-//             DisplayShow(number);
-//         }
-
-//         operation = e.target.dataset.button;
-//         buffer = number;
-//         number = 0;
-//     })
-
-//     panelDigitButtons.addEventListener('mousedown', (e) => {
-//         if ( IsButton(e) === false ) return;
-//         e.target.classList.remove('hover');
-//         e.target.classList.add('down');
-//     });
-
-//     panelDigitButtons.addEventListener('mouseup', (e) => {
-//         if ( IsButton(e) === false ) return;
-//         e.target.classList.add('hover');
-//         e.target.classList.remove('down');
-//     });
-
-//     panelDigitButtons.addEventListener("mouseout", (e) => {
-//         if ( IsButton(e) === false ) return;
-//         e.target.classList.add('hover');
-//         e.target.classList.remove('down');
-//     });
-
-//     operationButtons.addEventListener('mousedown', (e) => {
-//         if ( IsButton(e) === false ) return;
-//         e.target.classList.remove('hover');
-//         e.target.classList.add('down');
-//     });
-
-//     operationButtons.addEventListener('mouseup', (e) => {
-//         if ( IsButton(e) === false ) return;
-//         e.target.classList.add('hover');
-//         e.target.classList.remove('down');
-//     });
-
-//     operationButtons.addEventListener("mouseout", (e) => {
-//         if ( IsButton(e) === false ) return;
-//         e.target.classList.add('hover');
-//         e.target.classList.remove('down');
-//     });
-
-//     /* 
-//     *  Функция удаления последнего символа. Возвращает "0", если число состояло из одного символа или возвращает число без последнего символа (785 -> 78).
-//     *  Функция ожидает на вход строку символов. Пришедший аргумент конвертируется в число для удаления впереди стоящих нулей, если таковые имели место,
-//     *  затем, конвертируется в строку для работы с ним, как с массивом.
-//     */
-//     function Backspace(number) {
-//         let typeNumber = Number(number);
-//         if (typeNumber.toString().length < 2) return '0';
-//         return Number(typeNumber.toString().slice(0, -1));
-//     }
-
-//     /* 
-//     *  Функция проверки, что клик был осуществлен именно по кнопке. Путем проверки наличия атрибута "data-button" у элемента DOM-дерева.
-//     *  Функция ожидает на вход объект события и возвращает результат проверки в качестве булевого значения true либо false.
-//     */
-//     function IsButton(e) {
-//         return e.target.hasAttribute('data-button');
-//     }
-
-//     /* 
-//     *  Функция очистки экрана. Устанавливает "0" в качестве отображения по умолчанию. 
-//     */
-//     function DisplayClear() {
-//         display.innerText = 0;
-//     }
-
-//     /* 
-//     *  Функция отображения значения на экран. Ожидает на вход значение, необходимое для отображения. 
-//     */
-//     function DisplayShow(number) {
-//         display.innerText = Number(number);
-//     }
-
-//     /* 
-//     *  Функция сброса всех переменных к значениям по умолчанию. Удалят все текущие данные, хранящиеся в переменных. 
-//     */
-//     function ResetAll() {
-//         number = 0;
-//         operation = '';
-//         buffer = 0;
-//     }
-
-//     /* 
-//     *  Функция расчета результата. Принимает строку, в которой указана последовательность операндов и операторов, превращая эту строку в исполнительное выражение. 
-//     */
-//     function Calculate(executionStack) {
-//         return eval(executionStack);
-//     }
-
-//     /* 
-//     *  Функция добавления набираемых цифр. Принимает два параметра, первое - текущее значение числа, второе - введенная цифра. (7 + 8 -> 78)
-//     *  Для того чтобы это было именно обединение, а не арифметическая операция сложения, оба аргумента приводятся к типу "строка".
-//     */
-//     function Concatenation(number, currentNumber) {
-//         if (number.toString().length > 11) return Number(number);
-//         return Number(number.toString() + currentNumber.toString());
-//     }
-
