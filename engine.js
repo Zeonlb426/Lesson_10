@@ -3,13 +3,13 @@ window.addEventListener('load', function(){
     const calculator = document.getElementById('calculator');
     const buttonPanel = document.getElementById('button-panel');
     const display = document.getElementById('symbols');
-    // const memorySymbol = document.getElementById('memory-symbol');
+    const memorySymbol = document.getElementById('memory-symbol');
 
     let currentValue = '0';
     let bufferValue = '0';
     let operationStack = null;
     let lastPressedButton = null;
-    // let memoryBuffer = 0;
+    let memoryBuffer = 0;
 
     calculator.addEventListener('mousemove', function(event) {
         if(event.buttons == 1) {
@@ -44,7 +44,7 @@ window.addEventListener('load', function(){
             case "1":
             case "0":
             case "dot":
-                if (lastPressedButton === 'operation') {
+                if ( lastPressedButton !== null && lastPressedButton.dataset.type === 'operation') {
                     currentValue = '0'
                 }
                 currentValue = Concatenation(currentValue, e.target.dataset.button);
@@ -86,9 +86,29 @@ window.addEventListener('load', function(){
                 currentValue = '0';
                 DisplayShow(currentValue);
                 break;
+
+            case "m_plus":
+                memoryBuffer = memoryBuffer + Number(currentValue);
+                memorySymbol.style.opacity = 1;
+                break;
+
+            case "m_minus":
+                memoryBuffer = memoryBuffer - Number(currentValue);
+                memorySymbol.style.opacity = 1;
+                break;
+
+            case "mrc":
+                if (lastPressedButton.dataset.button === 'mrc') {
+                    memoryBuffer = 0;
+                    memorySymbol.style.opacity = 0;
+                    break;
+                }
+                currentValue = memoryBuffer.toString();
+                DisplayShow(currentValue);
+                break;
         }
 
-        lastPressedButton = e.target.dataset.type
+        lastPressedButton = e.target;
     })
 
     /* 
